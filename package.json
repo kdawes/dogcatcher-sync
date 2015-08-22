@@ -1,0 +1,21 @@
+{
+  "name": "dogcatcher-sync",
+  "version": "0.0.0",
+  "description": "tooling for dogcatcher sync/export",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kdawes/dogcatcher-sync.git"
+  },
+  "author": "Kelsey Dawes",
+  "license": "artistic",
+  "bugs": {
+    "url": "https://github.com/kdawes/dogcatcher-sync/issues"
+  },
+  "homepage": "https://github.com/kdawes/dogcatcher-sync"
+}

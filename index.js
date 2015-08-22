@@ -10,9 +10,9 @@ process.stdin.on('data', function(chunk) {
 });
 
 process.stdin.on('end', function() {
-    var obj = parser.toJson(data);
+  var obj = parser.toJson(data);
 	console.log(obj);
-    //inspectIt(obj, 1);
+  //inspectIt(obj, 1);
 });
 
 function tabs( n ) {
@@ -22,7 +22,7 @@ function tabs( n ) {
 
 function inspectIt( obj, depth ) {
     var o = JSON.parse(obj);
-    for(var i in o ) {
+    for( var i in o ) {
         var type = typeof(o[i]);
         console.log(tabs(depth) + i + " : " + type);
         if ( type === 'object' ) { 

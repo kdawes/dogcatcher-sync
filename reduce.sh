@@ -19,7 +19,7 @@ FILTER2="-a enclosure.url title"
 INPUTS=$(ls ${DATA}/*.json);
 for f in ${INPUTS};
 do
-	#reduce / filter.  Maybe there's a clever way to do this without the second pipe ? 
-	FILTERED=$(json < ${f}  ${FILTER1} | json ${FILTER2} -o json );
-	echo "${FILTERED}" >>${OUTPUT}
+    #reduce / filter.  Maybe there's a clever way to do this without the second pipe ? 
+    FILTERED=$(json < ${f}  ${FILTER1} | json ${FILTER2} -o json );
+    echo "${FILTERED}" >>${OUTPUT}
 done

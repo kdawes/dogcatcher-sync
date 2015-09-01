@@ -2,7 +2,6 @@
 #Build  the APK - push it to the device
 ADB=$(which adb)
 DIRNAME=$(which dirname)
-HTTP_SERVER=$(which http-server)
 CORDOVA=$(which cordova)
 WORKING_DIR="./sync"
 BUILD_LOG="/tmp/build.log"

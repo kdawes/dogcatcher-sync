@@ -1,9 +1,9 @@
 var http = require('http'),
-	director = require('director'),
-	cycle = require('cycle'),
+  director = require('director'),
+  cycle = require('cycle'),
   union= require('union'),
   formidable = require('formidable'),
-	router = new director.http.Router(),
+  router = new director.http.Router(),
   util = require('util');
 
 

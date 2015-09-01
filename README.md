@@ -1,4 +1,10 @@
 # dogcatcher-sync
-Tooling and utilities for DogCatcher podcast sync/export
+Example 'Full Stack' application - mobile / api / backend / etl - from node.js / phonegap that has some utility.
 
-Dependencies : node.js npm http://trentm.com/json/
+Tooling / applications for DogCatcher podcast sync/export
+
+Dependencies : 
+node.js / iojs
+npm 
+http://trentm.com/json/
+cordova / phonegap

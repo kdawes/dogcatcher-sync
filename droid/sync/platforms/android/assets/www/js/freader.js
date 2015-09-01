@@ -42,14 +42,13 @@ function sendIt( data ) {
 
 function wrapper( reader ) {
     function onError(error) { 
-        console.log("ERROR : wrapper " + JSON.stringify(error));
+      console.log("ERROR : wrapper " + JSON.stringify(error));
     }
     function onSuccess(fileEntry) {
-        console.log("Success : wrapper : " + fileEntry.name);
-        fileEntry.file(finallyRead, onError);
+      fileEntry.file(finallyRead, onError);
     }
     function finallyRead(file) {
-        reader.reader.readAsText(file);
+      reader.reader.readAsText(file);
     }
     window.resolveLocalFileSystemURL("file://"+reader.path, onSuccess, onError);
 }

@@ -6,14 +6,14 @@ var http = require('http'),
   router = new director.http.Router(),
   util = require('util');
 
-
 function handleUpload() {
   var req = this.req,
   res = this.res,
   form = new formidable.IncomingForm();
 
-  console.log('Receiving file upload');
+  form.uploadDir = "./uploads"
 
+  console.log('Receiving file upload');
   form.on('field', function(field, value) {
     console.log(field, value);
   })
@@ -29,11 +29,11 @@ function handleUpload() {
     if (err) {
       res.end('error: Upload failed: ' + err);
     } else {
-      res.end('success: Uploaded file(s): ' + util.inspect({fields: fields, files: files}));
+      //res.end('success: Uploaded file(s): ' + util.inspect({fields: fields, files: files}));
+      res.end(JSON.stringify(files));
     }
   });
 }
-
 
 router.post('/dcsync', { stream: true }, handleUpload);
 

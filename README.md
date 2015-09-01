@@ -1,10 +1,25 @@
-# dogcatcher-sync
-Example 'Full Stack' application - mobile / api / backend / etl - from node.js / phonegap that has some utility.
+Trivial example of a full stack - mobile / api / backend / etl / frontend - from node.js / phonegap / that has some utility.
 
-Tooling / applications for DogCatcher podcast sync/export
+Currently : 
+
+* Tooling / Phonegap application for DogCatcher's exported OPML Feed.
+
+* node.js backend
+
+* scripted map/reduce   
 
 Dependencies : 
-node.js / iojs
-npm 
-http://trentm.com/json/
-cordova / phonegap
+
+* node.js / iojs
+
+* npm 
+
+* http://trentm.com/json/
+
+* cordova / phonegap
+
+TODO : 
+
+* storage
+
+* frontend

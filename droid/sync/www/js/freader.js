@@ -31,7 +31,7 @@ function sendIt( data ) {
   }
 
   var options = new FileUploadOptions();
-  options.fileKey = "file";
+  options.fileKey = "fileKey";
   options.fileName = "DoggCatcherExport.opml";
   options.mimeType = "text/x-opml";
 
@@ -41,7 +41,7 @@ function sendIt( data ) {
 }
 
 function wrapper( reader ) {
-    function onError(error) { 
+    function onError(error) {
       console.log("ERROR : wrapper " + JSON.stringify(error));
     }
     function onSuccess(fileEntry) {

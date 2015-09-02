@@ -1,41 +1,73 @@
+//TODO authentication
+//Tools
 var http = require('http'),
   director = require('director'),
   cycle = require('cycle'),
   union= require('union'),
   formidable = require('formidable'),
   router = new director.http.Router(),
-  util = require('util');
+  util = require('util'),
+  fs = require('fs'),
+  log = console.log.bind(console);
 
+// Data structures
+//#TODO lru and age out to persistent storage
+var metadataCache = [];
+
+// Router handlers
 function handleUpload() {
   var req = this.req,
   res = this.res,
   form = new formidable.IncomingForm();
-
   form.uploadDir = "./uploads"
-
-  console.log('Receiving file upload');
   form.on('field', function(field, value) {
     console.log(field, value);
   })
   .on('file', function(field, file) {
-    console.log(field, file);
+      //console.log("field :  ", field, "filename : ", file);
   })
   .on('progress', function(rec, expected) {
+    var limit = 16 * 1024 * 1024; //640k should be enough for anybody ;)
+    if ( expected > limit ) {
+      res.writeHead(500, { 'Content-type': 'text/plain' });
+      res.err('file limit exceeded');
+      log('ERROR', 'file limit exceeded : ', expected, ' Limit : ', limit);
+      return;
+    }
     console.log("progress: " + rec + " of " +expected);
   })
   .parse(req, function(err, fields, files) {
-    console.log('Parsed file upload' + err);
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    console.log('Parsed file upload : Error ? : ' + err);
+    res.writeHead(200, { 'Content-type': 'text/plain' });
     if (err) {
       res.end('error: Upload failed: ' + err);
     } else {
-      //res.end('success: Uploaded file(s): ' + util.inspect({fields: fields, files: files}));
-      res.end(JSON.stringify(files));
+      stashMetadata({files, userId:'XXXXX-YYYYY-zzzz-aaaa', timestamp: new Date().getTime() })
+      res.end('ok');
     }
   });
 }
 
+//naive - just return everything
+function getMetadata() {
+  var req = this.req, res = this.res;
+  res.writeHead(200, {'Content-type':'application/json'});
+  res.json(metadataCache);
+  console.log('getMetadata ' + JSON.stringify(metadataCache, null, 2));
+}
+
+//helper Functions
+
+function stashMetadata(opts) {
+  if ( ! opts || !opts.files || ! opts.files.fileKey ) {
+    throw new Error("ERROR - phonegap app changed the contract / data model. Expected : opts.files.fileKey.xxxxfilenamexxxx");
+  }
+
+  metadataCache.push(opts);
+}
+
 router.post('/dcsync', { stream: true }, handleUpload);
+router.get('/metadata', { stream: true }, getMetadata);
 
 var server = union.createServer({
   buffer: false,

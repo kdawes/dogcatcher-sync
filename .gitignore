@@ -1,5 +1,8 @@
 *~
 .gradle
-/sync
-/build
-/uploads
+assets/
+sync/
+build/
+uploads/
+node_modules/
+platforms/

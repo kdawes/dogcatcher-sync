@@ -1,15 +1,13 @@
-// TODO authentication
-// Tools
-var http = require('http'),
-  director = require('director'),
-  cycle = require('cycle'),
-  union = require('union'),
-  formidable = require('formidable'),
-  router = new director.http.Router(),
-  util = require('util'),
-  fs = require('fs'),
-  log = console.log.bind(console)
-hat = require('hat')
+var http = require('http')
+var director = require('director')
+var cycle = require('cycle')
+var union = require('union')
+var formidable = require('formidable')
+var router = new director.http.Router()
+var util = require('util')
+var fs = require('fs')
+var log = console.log.bind(console)
+var hat = require('hat')
 
 // Data structures
 // #TODO lru and age out to persistent storage

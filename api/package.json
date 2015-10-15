@@ -12,9 +12,7 @@
     "cycle": "^1.0.3",
     "director": "^1.2.8",
     "formidable": "^1.0.17",
-    "union": "^0.4.4"
-  },
-  "devDependencies": {
+    "union": "^0.4.4",
     "hat": "0.0.3"
   }
 }

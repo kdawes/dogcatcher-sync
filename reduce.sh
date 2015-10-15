@@ -17,9 +17,11 @@ FILTER2="-a enclosure.url title"
 
 #build the input list
 INPUTS=$(ls ${DATA}/*.json);
+echo "INPUTS : "
 for f in ${INPUTS};
 do
-    #reduce / filter.  Maybe there's a clever way to do this without the second pipe ? 
-    FILTERED=$(json < ${f}  ${FILTER1} | json ${FILTER2} -o json );
+  echo ${f};
+    #reduce / filter.  Maybe there's a clever way to do this without the second pipe ?
+    FILTERED=$(json < ${f}  ${FILTER1} | json ${FILTER2} -o json | json );
     echo "${FILTERED}" >>${OUTPUT}
 done

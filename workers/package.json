@@ -9,7 +9,6 @@
   "author": "kdawes@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "chokidar": "^1.0.5",
-    "xml2json": "^0.9.0"
+    "chokidar": "^1.0.5"
   }
 }

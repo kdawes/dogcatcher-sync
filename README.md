@@ -1,24 +1,22 @@
 Trivial example of a full stack - mobile / api / backend / etl / frontend - from node.js / phonegap / that has some utility.
 
-Currently : 
+Currently :
 
 * Tooling / Phonegap application for DogCatcher's exported OPML Feed.
 
 * node.js backend
 
-* scripted map/reduce   
-
-Dependencies : 
+Dependencies :
 
 * node.js / iojs
 
-* npm 
+* npm
 
 * http://trentm.com/json/
 
 * cordova / phonegap
 
-TODO : 
+TODO :
 
 * storage
 

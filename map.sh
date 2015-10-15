@@ -1,11 +1,11 @@
 #!/bin/bash
-INPUT="./DoggCatcherExport.opml"
+INPUT="./dc2.txt"
 
 URLS=$(cat ${INPUT} | node ./index.js | json opml.outline | json -a xmlUrl)
 
 # 1 take the base/original opml export file from DogCatcher
 # 2 pipe it through a node process that transforms it into json
-# 3 filter down to the individual RSS/Feed urls 
+# 3 filter down to the individual RSS/Feed urls
 
 DATA="./data"
 

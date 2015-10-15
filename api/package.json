@@ -13,5 +13,8 @@
     "director": "^1.2.8",
     "formidable": "^1.0.17",
     "union": "^0.4.4"
+  },
+  "devDependencies": {
+    "hat": "0.0.3"
   }
 }

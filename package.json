@@ -6,7 +6,9 @@
   "dependencies": {
     "xml2json": "^0.9.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "JSONStream": "^1.0.6"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

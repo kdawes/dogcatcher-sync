@@ -11,4 +11,5 @@ then
 fi
 
 #obvs, don't do this in production
-npm install && node ./index.js
+IP=$1 ||
+npm install && node ./index.js $1

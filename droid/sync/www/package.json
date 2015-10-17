@@ -1,0 +1,51 @@
+{
+  "name": "dcSyncmobile",
+  "browserify": {
+    "transform": [
+      [
+        "browserify-css",
+        {
+          "autoInject": true,
+          "minify": true,
+          "rootDir": "css"
+        }
+      ],
+      [
+        "reactify",
+        {
+          "es6": true
+        }
+      ],
+      [
+        "babelify",
+        {}
+      ]
+    ]
+  },
+  "version": "1.0.0",
+  "description": "minimal frontend boilerplate / tooling.  React, beefy, browserify, flux",
+  "main": "js/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "beefy js/go.js:js/browserifybundle.js",
+    "build:js": "browserify -t reactify -t browserify-css -t babelify js/go.js > js/browserifybundle.js",
+    "clean": "../scripts/clean.sh"
+  },
+  "author": "Kelsey Dawes kdawes@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "babelify": "^6.3.0",
+    "bootstrap": "^3.3.5",
+    "browserify-css": "^0.7.1",
+    "flux": "^2.1.1",
+    "keymirror": "^0.1.1",
+    "lodash": "^3.10.1",
+    "react": "^0.13.3",
+    "react-bootstrap": "^0.26.1",
+    "reactify": "^1.1.1",
+    "standard": "^5.3.0"
+  },
+  "dependencies": {
+    "uglifyify": "^3.0.1"
+  }
+}

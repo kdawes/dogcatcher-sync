@@ -9,10 +9,8 @@
   "author": "kdawes@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "chokidar": "^1.0.5"
-  },
-  "devDependencies": {
     "JSONStream": "^1.0.6",
+    "chokidar": "^1.0.5",
     "request": "^2.65.0"
   }
 }

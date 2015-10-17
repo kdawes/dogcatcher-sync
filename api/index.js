@@ -1,30 +1,31 @@
-var http = require('http')
+'use strict'
 var director = require('director')
-var cycle = require('cycle')
 var union = require('union')
 var formidable = require('formidable')
 var router = new director.http.Router()
 var util = require('util')
-var fs = require('fs')
 var log = console.log.bind(console)
 var hat = require('hat')
+var Pouchdb = require('pouchdb')
+Pouchdb.plugin(require('pouchdb-find'))
 
 // Data structures
 // #TODO lru and age out to persistent storage
 var metadataCache = []
-
+// XXX to config
+var UPLOAD_DIR = './uploads'
 // Router handlers
 function handleUpload () {
   var req = this.req
   var res = this.res
   var form = new formidable.IncomingForm()
-  form.uploadDir = './uploads'
+  form.uploadDir = UPLOAD_DIR
   form.on('field', function (field, value) {
     log(field, value)
   }).on('file', function (field, file) {
     log('field :  ', field, 'filename : ', file)
   }).on('progress', function (rec, expected) {
-    var limit = 16 * 1024 * 1024; // 640k should be enough for anybody ;)
+    var limit = 16 * 1024 * 1024 // they say 640k should be enough for anybody ;)
     log('Progres: expected ', expected, ' limit ', limit)
     if (expected >= limit) {
       res.writeHead(500, { 'Content-type': 'text/plain' })
@@ -32,16 +33,20 @@ function handleUpload () {
       log('ERROR', 'file limit exceeded : ', expected, ' Limit : ', limit)
       return
     }
-    console.log('progress: ' + rec + ' of ' + expected)
+    log('progress: ', rec, ' of ', expected)
   }).parse(req, function (err, fields, files) {
-    console.log('Parsed file upload : Error ? : ' + err)
-
+    log('Parsed file upload : Have error ? ? : ', err)
     if (err) {
       res.writeHead(500, { 'Contenty-type': 'text/plain' })
       res.end('Thats an error: Upload failed: ' + err)
     } else {
+      stashMetadata({
+        id: hat(),
+        files,
+        userId: 'XXXXX-YYYYY-zzzz-aaaa',
+        timestamp: new Date().getTime()
+      })
       res.writeHead(200, { 'Content-type': 'text/plain' })
-      stashMetadata({id: hat(), files, userId: 'XXXXX-YYYYY-zzzz-aaaa', timestamp: new Date().getTime() })
       res.end('ok')
     }
   })
@@ -49,24 +54,93 @@ function handleUpload () {
 
 // naive - just return everything
 function getMetadata () {
-  var req = this.req, res = this.res
+  var res = this.res
   res.writeHead(200, {'Content-type': 'application/json'})
-  res.json(metadataCache)
+  if (metadataCache.length > 0) {
+    res.json(metadataCache)
+  } else {
+    db.allDocs().then(function (r) {
+      res.json(r)
+    })
+  }
+
   console.log('getMetadata ' + JSON.stringify(metadataCache, null, 2))
 }
 
 // helper Functions
 
 function stashMetadata (opts) {
-  if ( ! opts || !opts.files || ! opts.files.fileKey) {
+  if (!opts || !opts.files || !opts.files.fileKey) {
     throw new Error('ERROR - phonegap app changed the contract / data model. Expected : opts.files.fileKey.xxxxfilenamexxxx')
   }
 
   metadataCache.push(opts)
 }
 
-router.post('/dcsync', { stream: true }, handleUpload)
-router.get('/metadata', { stream: true }, getMetadata)
+router.post('/dcsync', {stream: true}, handleUpload)
+router.post('/feed', {stream: true}, function () {
+  var concat = require('concat-stream')
+  this.req.pipe(concat(function (body) {
+    var eString = null
+    try {
+      // body is a buffer.
+      var obj = JSON.parse(body.toString('utf-8'))
+      db.post(obj).then(function (r) {
+        console.log('new id created' + JSON.stringify(r))
+      }).catch(function (e) {
+        eString = e.toString()
+        log(eString)
+      })
+    } catch (e) {
+      eString = e.toString()
+      log('nope ', eString)
+    }
+    this.res.end(eString)
+  }.bind(this)))
+})
+
+router.get('/metadata', {stream: false}, getMetadata)
+router.get('/', {stream: false}, queryFn)
+
+var db = new Pouchdb('./db')
+function queryFn () {
+  console.log('queryfn .... ')
+  db.allDocs({include_docs: true}).then(function (r) {
+    this.res.json(r)
+  }.bind(this))
+}
+
+function findProp (obj, prop, defval) {
+  if (typeof defval === 'undefined') defval = null
+  prop = prop.split('.')
+  for (var i = 0; i < prop.length; i++) {
+    if (typeof obj[prop[i]] === 'undefined') {
+      return defval
+    }
+    obj = obj[prop[i]]
+  }
+  return obj
+}
+
+router.get('/q/:id', function (id) {
+  var res = this.res
+  var req = this.req
+  log('parameters' + util.inspect(this.req.query))
+  db.get(id).then(function (doc) {
+    res.writeHead(200, {'Contenty-type': 'application/json'})
+    if (req.query.map && req.query.map.length > 0) {
+      log('req.query.map', req.query.map)
+      var r = findProp(doc, req.query.map)
+      res.json(r)
+    } else {
+      res.json(doc)
+    }
+    res.end()
+  }).catch(function (err) {
+    res.writeHead(500, { 'Content-type': 'text/plain' })
+    res.end(err)
+  })
+})
 
 var server = union.createServer({
   buffer: false,

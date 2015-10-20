@@ -4,7 +4,7 @@ Currently :
 
 * Tooling / Phonegap application for DogCatcher's exported OPML Feed.
 
-* node.js backend
+* node.js / pouchdb backend
 
 Dependencies :
 
@@ -12,12 +12,10 @@ Dependencies :
 
 * npm
 
-* http://trentm.com/json/
-
 * cordova / phonegap
 
-TODO :
+* pouchdb
 
-* storage
+TODO :
 
 * frontend

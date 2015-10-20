@@ -8,12 +8,19 @@ var log = console.log.bind(console)
 var hat = require('hat')
 var Pouchdb = require('pouchdb')
 Pouchdb.plugin(require('pouchdb-find'))
+var selectn = require('selectn')
+var assert = require('assert')
+var _ = require('lodash')
 
 // Data structures
 // #TODO lru and age out to persistent storage
 var metadataCache = []
+var db = new Pouchdb('./db')
+var meta = new Pouchdb('./metadata')
+
 // XXX to config
 var UPLOAD_DIR = './uploads'
+
 // Router handlers
 function handleUpload () {
   var req = this.req
@@ -40,10 +47,20 @@ function handleUpload () {
       res.writeHead(500, { 'Contenty-type': 'text/plain' })
       res.end('Thats an error: Upload failed: ' + err)
     } else {
+      log(JSON.stringify(files, null, 2))
+      assert(files, 'no files object parsed?')
+      assert(files.fileKey.path, 'no patch object available')
+
       stashMetadata({
-        id: hat(),
-        files,
-        userId: 'XXXXX-YYYYY-zzzz-aaaa',
+        _id: files.fileKey.path,
+        data: {
+          'size': files.fileKey.size,
+          'path': files.fileKey.path,
+          'name': files.fileKey.name,
+          'type': files.fileKey.type,
+          'mtime': files.fileKey.mtime
+        },
+        userId: hat(), // XXX FIXME
         timestamp: new Date().getTime()
       })
       res.writeHead(200, { 'Content-type': 'text/plain' })
@@ -56,29 +73,29 @@ function handleUpload () {
 function getMetadata () {
   var res = this.res
   res.writeHead(200, {'Content-type': 'application/json'})
-  if (metadataCache.length > 0) {
-    res.json(metadataCache)
-  } else {
-    db.allDocs().then(function (r) {
-      res.json(r)
-    })
-  }
-
-  console.log('getMetadata ' + JSON.stringify(metadataCache, null, 2))
+  log('parameters' + util.inspect(this.req.query))
+  meta.allDocs({include_docs: true}).then(function (r) {
+    res.json(r)
+  })
 }
 
 // helper Functions
 
 function stashMetadata (opts) {
-  if (!opts || !opts.files || !opts.files.fileKey) {
-    throw new Error('ERROR - phonegap app changed the contract / data model. Expected : opts.files.fileKey.xxxxfilenamexxxx')
-  }
-
-  metadataCache.push(opts)
+  if (!opts) throw new Error('stashMetadata called with no data :()')
+  meta.post(opts).then(function (r) {
+    console.log('new metadata obj created' + JSON.stringify(r))
+  }).catch(function (e) {
+    log(eString)
+  })
 }
 
+// Handle the post from the phone / mobile with the exported OPML file
 router.post('/dcsync', {stream: true}, handleUpload)
-router.post('/feed', {stream: true}, function () {
+
+// The watcher parses the OPML file, identifies the feeds, pulls down
+// each feed, xforms it to JSON and POSTS it here
+router.post('/feeds', {stream: true}, function () {
   var concat = require('concat-stream')
   this.req.pipe(concat(function (body) {
     var eString = null
@@ -99,39 +116,39 @@ router.post('/feed', {stream: true}, function () {
   }.bind(this)))
 })
 
-router.get('/metadata', {stream: false}, getMetadata)
-router.get('/', {stream: false}, queryFn)
-
-var db = new Pouchdb('./db')
-function queryFn () {
-  console.log('queryfn .... ')
+// rolled up listing of the feeds with title. image, showcount
+router.get('/feeds', function () {
+  console.log('get /feeds')
   db.allDocs({include_docs: true}).then(function (r) {
-    this.res.json(r)
+    var rr = []
+    r.rows.forEach(function (f) {
+      var img = selectn('doc.rss.channel.itunes:image.href', f)
+      var shows = selectn('doc.rss.channel.item', f).length
+      var s = {
+        'title': f.doc.rss.channel.title,
+        '_id': f.doc._id,
+        'image': img || 'nope',
+        'count': shows
+      }
+      rr.push(s)
+    })
+    this.res.json(rr)
   }.bind(this))
-}
+})
 
-function findProp (obj, prop, defval) {
-  if (typeof defval === 'undefined') defval = null
-  prop = prop.split('.')
-  for (var i = 0; i < prop.length; i++) {
-    if (typeof obj[prop[i]] === 'undefined') {
-      return defval
-    }
-    obj = obj[prop[i]]
-  }
-  return obj
-}
-
-router.get('/q/:id', function (id) {
+// returns a particular feed
+router.get('/feeds/:id', function (id) {
   var res = this.res
   var req = this.req
   log('parameters' + util.inspect(this.req.query))
   db.get(id).then(function (doc) {
-    res.writeHead(200, {'Contenty-type': 'application/json'})
-    if (req.query.map && req.query.map.length > 0) {
-      log('req.query.map', req.query.map)
-      var r = findProp(doc, req.query.map)
-      res.json(r)
+    res.writeHead(200, {
+      'Contenty-type': 'application/json'
+    })
+    var map = selectn('query.map', req)
+    if (map) {
+      log('req.query.map', map)
+      res.json(selectn(map, doc))
     } else {
       res.json(doc)
     }
@@ -141,6 +158,16 @@ router.get('/q/:id', function (id) {
     res.end(err)
   })
 })
+
+router.get('/metadata', {stream: false}, getMetadata)
+router.get('/', {stream: false}, queryFn)
+
+function queryFn () {
+  console.log('queryfn .... ')
+  db.allDocs({include_docs: true}).then(function (r) {
+    this.res.json(r)
+  }.bind(this))
+}
 
 var server = union.createServer({
   buffer: false,

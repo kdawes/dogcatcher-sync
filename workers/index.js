@@ -39,16 +39,18 @@ function doItJsonStream (file) {
   fs.createReadStream(file).pipe(xmlTransformer())
     .pipe(JSONStream.parse('opml.outline.*'))
     .pipe(es.mapSync(function (data) {
-      // make a reasonable file name
-      var result = data.xmlUrl.replace(/.*:\/\//g, '').replace(/\//g, '')
-      var fn = ['./working_data/', result, '.json'].join('')
-      var os = fs.createWriteStream(fn)
-      os.on('error', function (e) { console.log('ERROR ' + e) })
-      // pull down the rss feed.  the request module follows redirects
-      // automagically
       request(data.xmlUrl)
         .pipe(xmlTransformer())
-        .pipe(os)
+        .pipe(es.mapSync(function (data) {
+          // we want to tag the upload / metadata file into this for future use
+          var js = JSON.parse(data)
+          js.metadata_id = file || hat()
+          request.post({
+            uri: 'http://localhost:7777/feeds',
+            json: true,
+            body: js
+          })
+        }))
     }))
 }
 

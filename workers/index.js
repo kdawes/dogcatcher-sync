@@ -54,6 +54,12 @@ function doItJsonStream (file) {
     }))
 }
 
+function processFeed (feed) {
+  // generate a Thumbnail
+  //
+
+}
+
 // Application logic - file watcher / chokidar
 
 chokidar.watch('../api/uploads', {

@@ -11,6 +11,8 @@ Pouchdb.plugin(require('pouchdb-find'))
 var selectn = require('selectn')
 var assert = require('assert')
 var _ = require('lodash')
+var request = require('request')
+var async = require('async')
 
 // Data structures
 // #TODO lru and age out to persistent storage
@@ -119,20 +121,36 @@ router.post('/feeds', {stream: true}, function () {
 // rolled up listing of the feeds with title. image, showcount
 router.get('/feeds', function () {
   console.log('get /feeds')
+  var self = this
   db.allDocs({include_docs: true}).then(function (r) {
-    var rr = []
-    r.rows.forEach(function (f) {
-      var img = selectn('doc.rss.channel.itunes:image.href', f)
-      var shows = selectn('doc.rss.channel.item', f).length
+    async.map(r.rows, function iterator (item, callback) {
+      console.log('feed ' + selectn('doc.rss.channel.title', item))
+      var imgHref = selectn('doc.rss.channel.itunes:image.href', item)
       var s = {
-        'title': f.doc.rss.channel.title,
-        '_id': f.doc._id,
-        'image': img || 'nope',
-        'count': shows
+        'title': selectn('doc.rss.channel.title', item),
+        '_id': selectn('doc._id', item),
+        'count': selectn('doc.rss.channel.item', item).length || 0
       }
-      rr.push(s)
+      console.log('need a thumbnail - fetching ' + imgHref)
+      if (!imgHref) {
+        async.setImmediate(function () {
+          callback(null, s)
+        })
+      } else {
+        request.post({
+          uri: 'http://localhost:5454/maps',
+          json: true,
+          body: { 'url': imgHref }
+        }, function (e, r, b) {
+          if ( e ) {  console.log('error!' + e); callback(e, null) }
+          s.image = b.url
+          callback(null, s)
+        })
+      }
+    }, function (err, results) {
+      if (err) { console.log('ERROR' + err); return }
+      self.res.json(results)
     })
-    this.res.json(rr)
   }.bind(this))
 })
 
@@ -173,6 +191,7 @@ var server = union.createServer({
   buffer: false,
   before: [
     function (req, res) {
+      res.setHeader('Access-Control-Allow-Origin', '*')
       router.dispatch(req, res, function (err) {
         if (err) {
           res.writeHead(404)

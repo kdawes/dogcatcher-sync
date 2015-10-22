@@ -133,16 +133,14 @@ router.get('/feeds', function () {
       }
       console.log('need a thumbnail - fetching ' + imgHref)
       if (!imgHref) {
-        async.setImmediate(function () {
-          callback(null, s)
-        })
+        callback(null, s)
       } else {
         request.post({
           uri: 'http://localhost:5454/maps',
           json: true,
           body: { 'url': imgHref }
         }, function (e, r, b) {
-          if ( e ) {  console.log('error!' + e); callback(e, null) }
+          if ( e ) {  console.log('error ! ' + e);  return callback(e, null) }
           s.image = b.url
           callback(null, s)
         })

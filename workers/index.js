@@ -9,7 +9,8 @@ var es = require('event-stream')
 var chokidar = require('chokidar')
 
 // This buffers up the whole thing :-/
-function xmlTransformer () {
+function xmlTransformer (url) {
+  console.log('xmlTransform ' + url)
   var transform = new Transform()
   var buf = []
   transform._transform = function (chunk, encoding, done) {
@@ -21,11 +22,19 @@ function xmlTransformer () {
     done()
   }
   transform._flush = function (done) {
-    transform.push(parser.toJson(buf.join('')))
+    try {
+      var pp = parser.toJson(buf.join(''))
+      if (pp) { transform.push(pp) } else {
+        console.log('no pp for url on ' + url + ' \n ' + buf.join(''))
+      }
+    } catch (error) {
+      console.log('parser.toJson failed on ' + (url) ? url : '' + ' : ' + error)
+    }
+    console.log('done ' + url)
     done()
   }
   transform.on('error', function (err) {
-    log(err)
+    console.log('transform error' + err)
   })
   return transform
 }
@@ -38,9 +47,16 @@ function xmlTransformer () {
 function doItJsonStream (file) {
   fs.createReadStream(file).pipe(xmlTransformer())
     .pipe(JSONStream.parse('opml.outline.*'))
-    .pipe(es.mapSync(function (data) {
-      request(data.xmlUrl)
-        .pipe(xmlTransformer())
+    .pipe(es.mapSync(function (d) {
+      request(d.xmlUrl, function (e, r, b) {
+        if (e) {  console.log('error ' + e); return }
+        if (r.statusCode !== 200) {
+          console.log('body.length' + b.length)
+          console.log('statusCode ' + r.statusCode)
+          console.log(' :: ' + JSON.stringify(d))
+        }
+      })
+        .pipe(xmlTransformer(d.xmlUrl))
         .pipe(es.mapSync(function (data) {
           // we want to tag the upload / metadata file into this for future use
           var js = JSON.parse(data)
@@ -51,15 +67,9 @@ function doItJsonStream (file) {
             body: js
           })
         }))
+    //      }
     }))
 }
-
-function processFeed (feed) {
-  // generate a Thumbnail
-  //
-
-}
-
 // Application logic - file watcher / chokidar
 
 chokidar.watch('../api/uploads', {

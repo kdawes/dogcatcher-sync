@@ -18,4 +18,22 @@ Dependencies :
 
 TODO :
 
-* frontend
+* frontend :: create playlist
+
+* all : tests
+
+* frontend/webpack :: css / style loaders, stop using CDN in index.html
+
+* droid :: cleanup / cordova boilerplate
+
+* droid :: UI :: Specify server URL
+
+* droid :: UI :: Import / Retrieve OPML feeds
+
+* frontend :: Add feed, remove_feed
+
+* api :: export feeds as JSON / OPML
+
+* frontend :: FeedItem to use the thubmnailer service
+
+* frontend :: cleanup CSS

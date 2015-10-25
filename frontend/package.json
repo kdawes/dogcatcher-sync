@@ -22,7 +22,7 @@
     ]
   },
   "version": "1.0.0",
-  "description": "minimal frontend boilerplate / tooling.  React, beefy, browserify, flux",
+  "description": "Frontend / UI ",
   "main": "js/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -38,17 +38,13 @@
     "deep-equal": "^1.0.1",
     "flux": "^2.1.1",
     "keymirror": "^0.1.1",
-    "lodash": "^3.10.1",
-    "qs": "^5.2.0",
     "react": "^0.14.0",
     "react-router": "^1.0.0-rc2",
     "reactify": "^1.1.1",
-    "standard": "^5.3.0"
-  },
-  "dependencies": {
-    "async": "^1.4.2",
+    "standard": "^5.3.0",
     "ent": "^2.2.0",
     "react-addons-create-fragment": "^0.14.0",
     "request": "^2.65.0"
   }
+
 }

@@ -1,0 +1,55 @@
+{
+  "name": "frontend_boilerplate",
+  "browserify": {
+    "transform": [
+      [
+        "browserify-css",
+        {
+          "autoInject": true,
+          "minify": true,
+          "rootDir": "css"
+        }
+      ],
+      [
+        "reactify",
+        {
+          "es6": true
+        }
+      ],
+      [
+        "babelify"
+      ]
+    ]
+  },
+  "version": "1.0.0",
+  "description": "minimal frontend boilerplate / tooling.  React, beefy, browserify, flux",
+  "main": "js/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "beefy js/index.js:js/browserifybundle.js"
+  },
+  "author": "Kelsey Dawes kdawes@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "async": "^1.4.2",
+    "babelify": "^6.3.0",
+    "bootstrap": "^3.3.5",
+    "browserify-css": "^0.7.1",
+    "deep-equal": "^1.0.1",
+    "director": "^1.2.8",
+    "flux": "^2.1.1",
+    "keymirror": "^0.1.1",
+    "lodash": "^3.10.1",
+    "qs": "^5.2.0",
+    "react": "^0.14.0",
+    "react-router": "^1.0.0-rc2",
+    "reactify": "^1.1.1",
+    "standard": "^5.3.0"
+  },
+  "dependencies": {
+    "async": "^1.4.2",
+    "ent": "^2.2.0",
+    "react-addons-create-fragment": "^0.14.0",
+    "request": "^2.65.0"
+  }
+}

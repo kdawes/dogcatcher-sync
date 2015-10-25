@@ -1,6 +1,9 @@
 'use strict'
+var director = require('director')
 var React = require('react')
 var ent = require('ent')
+var $ = require('jquery')
+
 var selectn = require('selectn')
 
 var createFragment = require('react-addons-create-fragment')
@@ -9,7 +12,7 @@ var Route = require('react-router').Route
 var Link = require('react-router').Link
 
 // need to require css or browserify doesn't pull in the bootstrap stuff
-var css = require('../../css/app.css')
+// var css = require('../../css/app.css')
 
 var AppDispatcher = require('../dispatcher/Dispatcher')
 var ActionTypes = require('../enums/ActionTypes')
@@ -44,7 +47,7 @@ var FeedItem = React.createClass({
     <div>
       <div key='feedItem'>
         <div key='container' className="table-view-cell media">
-          <h3>{this.props.title}</h3>
+          <h3>{this.props.title} HI</h3>
                     <div key='publishedDate'>{this.props.pubDate && this.props.pubDate}</div>
           <div key='shownotes'>Show Notes : <a href={this.props.link && this.props.link}>{this.props.link && this.props.link}</a></div>
           <div key='audio'>Audio :<a href={this.props.audioLink && this.props.audioLink}>{this.props.audioLink && this.props.audioLink}</a></div>

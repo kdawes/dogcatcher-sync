@@ -1,0 +1,46 @@
+{
+  "name": "webpack_sandbox",
+  "version": "1.0.0",
+  "description": "Convert frontend_boilerplate from browserify to webpack",
+  "main": "js/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node devServer.js"
+  },
+  "author": "Kelsey Dawes kdawes@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^5.4.7",
+    "babel-eslint": "^3.1.9",
+    "babel-loader": "^5.1.2",
+    "babel-plugin-react-transform": "^1.1.1",
+    "bootstrap": "^3.3.5",
+    "deep-equal": "^1.0.1",
+    "director": "^1.2.8",
+    "ent": "^2.2.0",
+    "eslint": "^1.3.1",
+    "eslint-plugin-react": "^2.3.0",
+    "express": "^4.13.3",
+    "flux": "^2.1.1",
+    "jquery": "^2.1.4",
+    "json-loader": "^0.5.3",
+    "keymirror": "^0.1.1",
+    "lodash": "^3.10.1",
+    "qs": "^5.2.0",
+    "react-transform-catch-errors": "^1.0.0",
+    "react-transform-hmr": "^1.0.0",
+    "redbox-react": "^1.0.1",
+    "rimraf": "^2.4.3",
+    "selectn": "^0.10.0",
+    "standard": "^5.3.0",
+    "webpack": "^1.9.6",
+    "webpack-dev-middleware": "^1.2.0",
+    "webpack-hot-middleware": "^2.0.0"
+  },
+  "dependencies": {
+    "ent": "^2.2.0",
+    "react": "^0.14.0",
+    "react-addons-create-fragment": "^0.14.0",
+    "react-router": "^1.0.0-rc2"
+  }
+}

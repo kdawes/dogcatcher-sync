@@ -45,6 +45,9 @@
     "ent": "^2.2.0",
     "react-addons-create-fragment": "^0.14.0",
     "request": "^2.65.0"
+  },
+  "dependencies": {
+    "director": "^1.2.8",
+    "lodash": "^3.10.1"
   }
-
 }

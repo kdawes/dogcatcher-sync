@@ -36,7 +36,6 @@
     "bootstrap": "^3.3.5",
     "browserify-css": "^0.7.1",
     "deep-equal": "^1.0.1",
-    "director": "^1.2.8",
     "flux": "^2.1.1",
     "keymirror": "^0.1.1",
     "lodash": "^3.10.1",

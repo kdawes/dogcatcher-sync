@@ -159,7 +159,7 @@ router.get('/feeds/:id', function (id) {
   log('parameters' + util.inspect(this.req.query))
   db.get(id).then(function (doc) {
     res.writeHead(200, {
-      'Contenty-type': 'application/json'
+      'Content-type': 'application/json'
     })
     var map = selectn('query.map', req)
     if (map) {

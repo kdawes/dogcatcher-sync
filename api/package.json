@@ -12,6 +12,7 @@
     "assert": "^1.3.0",
     "async": "^1.4.2",
     "concat-stream": "^1.5.0",
+    "cors": "^2.7.1",
     "director": "^1.2.8",
     "formidable": "^1.0.17",
     "hat": "0.0.3",

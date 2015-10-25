@@ -10,9 +10,9 @@ var Pouchdb = require('pouchdb')
 Pouchdb.plugin(require('pouchdb-find'))
 var selectn = require('selectn')
 var assert = require('assert')
-var _ = require('lodash')
 var request = require('request')
 var async = require('async')
+var cors = require('cors')
 
 // Data structures
 // #TODO lru and age out to persistent storage
@@ -51,7 +51,7 @@ function handleUpload () {
     } else {
       log(JSON.stringify(files, null, 2))
       assert(files, 'no files object parsed?')
-      assert(files.fileKey.path, 'no patch object available')
+      assert(files.fileKey.path, 'no path object available')
 
       stashMetadata({
         _id: files.fileKey.path,
@@ -188,8 +188,8 @@ function queryFn () {
 var server = union.createServer({
   buffer: false,
   before: [
+    cors(),
     function (req, res) {
-      res.setHeader('Access-Control-Allow-Origin', '*')
       router.dispatch(req, res, function (err) {
         if (err) {
           res.writeHead(404)

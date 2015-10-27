@@ -37,17 +37,17 @@ function handleUpload () {
     var limit = 16 * 1024 * 1024 // they say 640k should be enough for anybody ;)
     log('Progres: expected ', expected, ' limit ', limit)
     if (expected >= limit) {
-      res.writeHead(500, { 'Content-type': 'text/plain' })
-      res.err('file limit exceeded')
+      res.writeHead(500, { 'Content-type': 'application/json' })
+      res.json({ ok: false, error: 'file limit exceeded' })
       log('ERROR', 'file limit exceeded : ', expected, ' Limit : ', limit)
       return
     }
     log('progress: ', rec, ' of ', expected)
   }).parse(req, function (err, fields, files) {
-    log('Parsed file upload : Have error ? ? : ', err)
     if (err) {
-      res.writeHead(500, { 'Contenty-type': 'text/plain' })
-      res.end('Thats an error: Upload failed: ' + err)
+      console.error('Parsed file upload error : ', JSON.stringify(err))
+      res.writeHead(500, { 'Content-type': 'application/json' })
+      res.json({ ok: false, error: 'Thats an error: Upload failed' })
     } else {
       log(JSON.stringify(files, null, 2))
       assert(files, 'no files object parsed?')
@@ -65,8 +65,8 @@ function handleUpload () {
         userId: hat(), // XXX FIXME
         timestamp: new Date().getTime()
       })
-      res.writeHead(200, { 'Content-type': 'text/plain' })
-      res.end('ok')
+      res.writeHead(200, { 'Content-type': 'application/json' })
+      res.json({ok: true})
     }
   })
 }
@@ -86,9 +86,9 @@ function getMetadata () {
 function stashMetadata (opts) {
   if (!opts) throw new Error('stashMetadata called with no data :()')
   meta.post(opts).then(function (r) {
-    console.log('new metadata obj created' + JSON.stringify(r))
+    log('new metadata obj created' + JSON.stringify(r))
   }).catch(function (e) {
-    log(eString)
+    console.error(e)
   })
 }
 
@@ -100,21 +100,20 @@ router.post('/dcsync', {stream: true}, handleUpload)
 router.post('/feeds', {stream: true}, function () {
   var concat = require('concat-stream')
   this.req.pipe(concat(function (body) {
-    var eString = null
     try {
       // body is a buffer.
       var obj = JSON.parse(body.toString('utf-8'))
       db.post(obj).then(function (r) {
-        console.log('new id created' + JSON.stringify(r))
+        log('new id created ' + JSON.stringify(r))
+        this.res.json({ok: r._id})
       }).catch(function (e) {
-        eString = e.toString()
-        log(eString)
+        console.error(eString)
       })
     } catch (e) {
-      eString = e.toString()
-      log('nope ', eString)
+      console.error(e)
+      this.res.writeHead(500, { 'Content-type': 'application/json' })
+      return this.res.json({ 'error': 'file limit exceeded'})
     }
-    this.res.end(eString)
   }.bind(this)))
 })
 
@@ -168,10 +167,10 @@ router.get('/feeds/:id', function (id) {
     } else {
       res.json(doc)
     }
-    res.end()
   }).catch(function (err) {
-    res.writeHead(500, { 'Content-type': 'text/plain' })
-    res.end(err)
+    console.error('router.get ', id, ' : ', JSON.stringify(err))
+    res.writeHead(500, { 'Content-type': 'application/json' })
+    res.json({ ok: false, error: err})
   })
 })
 

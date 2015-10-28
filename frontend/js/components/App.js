@@ -2,6 +2,8 @@
 var React = require('react')
 var ent = require('ent')
 var selectn = require('selectn')
+var request = require('request')
+var _ = require('lodash')
 
 var createFragment = require('react-addons-create-fragment')
 var Router = require('react-router').Router
@@ -45,11 +47,10 @@ var FeedItem = React.createClass({
       <div key='feedItem'>
         <div key='container' className="table-view-cell media">
           <h3>{this.props.title}</h3>
-                    <div key='publishedDate'>{this.props.pubDate && this.props.pubDate}</div>
-          <div key='shownotes'>Show Notes : <a href={this.props.link && this.props.link}>{this.props.link && this.props.link}</a></div>
-          <div key='audio'>Audio :<a href={this.props.audioLink && this.props.audioLink}>{this.props.audioLink && this.props.audioLink}</a></div>
+          <div key='publishedDate'>{this.props.pubDate}</div>
+          <div key='shownotes'>Show Notes : <a href={this.props.link}>{this.props.link}</a></div>
+          <div key='audio'>Audio :<a href={this.props.audioLink}>{this.props.audioLink}</a></div>
           {e}
-
         </div>
       </div>
     </div>
@@ -58,6 +59,11 @@ var FeedItem = React.createClass({
 })
 
 var Feed = React.createClass({
+  getInitialState: function () {
+    return ({
+      imgCache: {}
+    })
+  },
   _onChange: function () {
     console.log('_onChange FEED')
   },
@@ -66,6 +72,21 @@ var Feed = React.createClass({
   },
   componentDidMount: function () {
     UrlDataStore.addChangeListener(this._onChange)
+  },
+  cacheThumbnail: function (url, id) {
+    var self = this
+    if (!self.state.imgCache[id]) {
+      request.post({
+        uri: 'http://localhost:5454/maps',
+        json: true,
+        body: { 'url': url }
+      }, function (e, r, b) {
+        if ( e ) {  console.log('error ! ' + e);  return callback(e, null) }
+        let imgCache = _.cloneDeep(self.state.imgCache)
+        imgCache[id] = b.url
+        self.setState({imgCache: imgCache})
+      })
+    }
   },
   render: function () {
     const id = this.props.params.id
@@ -78,8 +99,17 @@ var Feed = React.createClass({
       )
     } else {
       parsed = JSON.parse(raw)
+
+      // if the img isn't already thumbnailed and cached, do that
+      let imgUrl = null
+      if (!this.state.imgCache[id]) {
+        imgUrl = selectn('rss.channel.itunes:image.href', parsed)
+        this.cacheThumbnail(imgUrl, id)
+      } else {
+        imgUrl = this.state.imgCache[id]
+      }
       var sub = selectn('rss.channel.itunes:subtitle', parsed)
-      let imgUrl = selectn('rss.channel.itunes:image.href', parsed)
+
       var k = 0
       return (
       <div>

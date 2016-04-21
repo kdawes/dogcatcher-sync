@@ -99,14 +99,10 @@ var Feed = React.createClass({
       )
     } else {
       parsed = JSON.parse(raw)
-
-      // if the img isn't already thumbnailed and cached, do that
-      let imgUrl = null
-      if (!this.state.imgCache[id]) {
+      let imgUrl = this.state.imgCache[id]
+      if (!imgUrl) {
         imgUrl = selectn('rss.channel.itunes:image.href', parsed)
         this.cacheThumbnail(imgUrl, id)
-      } else {
-        imgUrl = this.state.imgCache[id]
       }
       var sub = selectn('rss.channel.itunes:subtitle', parsed)
 

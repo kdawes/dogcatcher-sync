@@ -1,3 +1,4 @@
+'use strict'
 var parser = require('xml2json')
 var Transform = require('stream').Transform
 var Path = require('path')
@@ -22,13 +23,9 @@ function xmlTransformer (url) {
     done()
   }
   transform._flush = function (done) {
-    try {
-      var pp = parser.toJson(buf.join(''))
-      if (pp) { transform.push(pp) } else {
-        console.log('no pp for url on ' + url + ' \n ' + buf.join(''))
-      }
-    } catch (error) {
-      console.log('parser.toJson failed on ' + (url) ? url : '' + ' : ' + error)
+    var pp = parser.toJson(buf.join(''))
+    if (pp) { transform.push(pp) } else {
+      console.log('no pp for url on ' + url + ' \n ' + buf.join(''))
     }
     console.log('done ' + url)
     done()
@@ -45,18 +42,30 @@ function xmlTransformer (url) {
 // and transform them to JSON, finally piping them to the FS ( eventually zmq )
 // before being processed
 function doItJsonStream (file) {
-  fs.createReadStream(file).pipe(xmlTransformer())
+  var rs = fs.createReadStream(file)
+  rs.on('error', function (e) {
+    if (e) {
+      console.log('doItJsonStream : error: ' + e)
+      throw new Error(e)
+      return
+    }
+  })
+
+  rs.pipe(xmlTransformer())
     .pipe(JSONStream.parse('opml.outline.*'))
     .pipe(es.mapSync(function (d) {
       request(d.xmlUrl, function (e, r, b) {
-        if (e) {  console.log('error ' + e); return }
+        if (e) {
+          console.log('doItJsonStream : request error : ', e)
+          throw new Error(e)
+          return
+        }
         if (r.statusCode !== 200) {
           console.log('body.length' + b.length)
           console.log('statusCode ' + r.statusCode)
           console.log(' :: ' + JSON.stringify(d))
         }
-      })
-        .pipe(xmlTransformer(d.xmlUrl))
+      }).pipe(xmlTransformer(d.xmlUrl)) // url passed in for debug
         .pipe(es.mapSync(function (data) {
           // we want to tag the upload / metadata file into this for future use
           var js = JSON.parse(data)
@@ -65,13 +74,13 @@ function doItJsonStream (file) {
             uri: 'http://localhost:7777/feeds',
             json: true,
             body: js
+          }).on('error', function (e) {
+            console.log('es feeds post error : ', e)
           })
         }))
-    //      }
     }))
 }
 // Application logic - file watcher / chokidar
-
 chokidar.watch('../api/uploads', {
   ignored: /[\/\\]\./,
   persistent: true,
@@ -82,4 +91,9 @@ chokidar.watch('../api/uploads', {
   doItJsonStream(resolved)
 }).on('error', function (error) {
   log('ERROR : ', error)
+})
+
+process.on('uncaughtException', function (er) {
+  console.error(er.stack)
+  process.exit(1)
 })
